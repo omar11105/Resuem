@@ -6,6 +6,9 @@ const SECTIONS = [
 
 export default function SectionSelector({ selected = [], onChange }) {
   const toggle = (id) => {
+    if (selected.includes(id) && selected.length <= 1) {
+      return;
+    }
     const next = selected.includes(id)
       ? selected.filter((s) => s !== id)
       : [...selected, id];

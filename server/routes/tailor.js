@@ -51,17 +51,35 @@ function handleUpload(req, res, next) {
   });
 }
 
+const ALLOWED_SECTIONS = ['experience', 'projects', 'summary'];
+
 function parseSections(raw) {
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw === 'string') {
+  let list = [];
+  if (Array.isArray(raw)) list = raw;
+  else if (typeof raw === 'string') {
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) list = parsed;
+      else list = raw.split(',').map((s) => s.trim()).filter(Boolean);
     } catch {
-      return raw.split(',').map((s) => s.trim()).filter(Boolean);
+      list = raw.split(',').map((s) => s.trim()).filter(Boolean);
     }
   }
-  return ['experience', 'projects', 'summary'];
+
+  return [...new Set(list.filter((s) => ALLOWED_SECTIONS.includes(s)))];
+}
+
+function filterTailoredSections(tailoredSections, sections) {
+  if (!tailoredSections || typeof tailoredSections !== 'object') {
+    return {};
+  }
+  const filtered = {};
+  for (const key of sections) {
+    if (tailoredSections[key] !== undefined && tailoredSections[key] !== null) {
+      filtered[key] = tailoredSections[key];
+    }
+  }
+  return filtered;
 }
 
 async function resolveResumeInput(req) {
@@ -131,6 +149,11 @@ router.post('/', handleUpload, async (req, res) => {
 
     res.json({
       ...result,
+      tailored_sections: filterTailoredSections(
+        result.tailored_sections,
+        sections
+      ),
+      sections_tailored: sections,
       warnings,
     });
   } catch (err) {

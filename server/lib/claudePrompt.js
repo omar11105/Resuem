@@ -1,4 +1,64 @@
+const SECTION_SCHEMA = {
+  experience: `"experience": [
+      {
+        "company": "Company name",
+        "role": "Job title",
+        "bullets": [
+          {
+            "original": "exact original bullet text",
+            "tailored": "improved bullet text",
+            "classification": "GOOD|MID|BAD",
+            "explanation": "One sentence explaining what changed and why."
+          }
+        ]
+      }
+    ]`,
+  projects: `"projects": [
+      {
+        "bullets": [
+          {
+            "original": "exact original bullet text",
+            "tailored": "improved bullet text",
+            "classification": "GOOD|MID|BAD",
+            "explanation": "One sentence explaining what changed and why."
+          }
+        ]
+      }
+    ]`,
+  summary: `"summary": {
+      "original": "original summary text",
+      "tailored": "improved summary text",
+      "explanation": "One sentence explaining the approach."
+    }`,
+};
+
+function buildOutputFormatExample(sections) {
+  const sectionBlocks = sections
+    .filter((s) => SECTION_SCHEMA[s])
+    .map((s) => `    ${SECTION_SCHEMA[s]}`)
+    .join(',\n');
+
+  return `{
+  "tailored_sections": {
+${sectionBlocks}
+  },
+  "overall_explanation": "2-3 sentences summarizing the tailoring strategy for this specific JD.",
+  "jd_keywords_used": ["keyword1", "keyword2", "..."],
+  "warnings": ["any warnings, e.g. JD too short, PDF formatting issues, etc."]
+}`;
+}
+
 export function buildTailoringPrompt(resumeText, jobDescription, sections) {
+  const sectionList = sections.join(', ');
+  const outputExample = buildOutputFormatExample(sections);
+  const forbidden = ['experience', 'projects', 'summary']
+    .filter((s) => !sections.includes(s))
+    .join(', ');
+
+  const forbiddenRule = forbidden
+    ? `\n- Do NOT include these keys in tailored_sections: ${forbidden}. Omit them entirely — do not return empty placeholders.`
+    : '';
+
   return `You are an expert resume coach and technical recruiter. Your job is to tailor a candidate's resume to a specific job description using a rigorous, quality-driven approach.
 
 <resume>
@@ -10,12 +70,13 @@ ${jobDescription}
 </job_description>
 
 <sections_to_tailor>
-${sections.join(', ')}
+${sectionList}
 </sections_to_tailor>
 
 ## Your task
 
-Tailor only the sections listed above. For every bullet point in those sections, apply the following three-step process:
+Tailor ONLY the sections listed in <sections_to_tailor> — no other sections.${forbiddenRule}
+For every bullet point in those sections, apply the following three-step process:
 
 ### Step 1: Score each bullet on three dimensions (internal — do not output scores)
 - ACTION_VERB: Is the opening verb strong and specific (e.g. "Architected", "Reduced", "Led") or weak and vague (e.g. "Helped", "Worked on", "Assisted")?
@@ -40,37 +101,11 @@ For BAD bullets: Rewrite completely. Start with the strongest possible action ve
 - NEVER fabricate experience, technologies, or responsibilities the candidate did not have.
 - Preserve the candidate's actual accomplishments exactly — your job is to present them better, not replace them.
 - If the JD is too short to extract clear keywords (under 50 words), strengthen bullets generally without JD mirroring and note this in your explanation.
-- If a section listed in sections_to_tailor does not exist in the resume, skip it silently.
+- If a section listed in sections_to_tailor does not exist in the resume, skip it silently.${forbiddenRule}
 
 ## Output format
 
-Return ONLY valid JSON in this exact structure, with no explanation before or after:
+Return ONLY valid JSON matching this exact structure (only the section keys listed above), with no explanation before or after:
 
-{
-  "tailored_sections": {
-    "experience": [
-      {
-        "company": "Company name",
-        "role": "Job title",
-        "bullets": [
-          {
-            "original": "exact original bullet text",
-            "tailored": "improved bullet text",
-            "classification": "GOOD|MID|BAD",
-            "explanation": "One sentence explaining what changed and why."
-          }
-        ]
-      }
-    ],
-    "projects": [ ... same structure, no company/role fields needed ... ],
-    "summary": {
-      "original": "original summary text",
-      "tailored": "improved summary text",
-      "explanation": "One sentence explaining the approach."
-    }
-  },
-  "overall_explanation": "2-3 sentences summarizing the tailoring strategy for this specific JD.",
-  "jd_keywords_used": ["keyword1", "keyword2", "..."],
-  "warnings": ["any warnings, e.g. JD too short, PDF formatting issues, etc."]
-}`;
+${outputExample}`;
 }

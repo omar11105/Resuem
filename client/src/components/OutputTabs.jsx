@@ -45,6 +45,8 @@ function collectBullets(tailoredSections, sectionKey) {
   );
 }
 
+const SECTION_ORDER = ['experience', 'projects', 'summary'];
+
 export default function OutputTabs({ result }) {
   const [activeView, setActiveView] = useState('diff');
 
@@ -52,29 +54,33 @@ export default function OutputTabs({ result }) {
 
   const { tailored_sections, overall_explanation, jd_keywords_used, warnings } = result;
 
-  const cleanCopy = [
-    tailored_sections.experience?.length
-      ? `## Experience\n\n${formatBulletList(tailored_sections.experience)}`
-      : null,
-    tailored_sections.projects?.length
-      ? `## Projects\n\n${formatBulletList(tailored_sections.projects)}`
-      : null,
-    tailored_sections.summary?.tailored
-      ? `## Summary\n\n${tailored_sections.summary.tailored}`
-      : null,
-  ]
+  const activeSections = (
+    result.sections_tailored?.length
+      ? SECTION_ORDER.filter((s) => result.sections_tailored.includes(s))
+      : SECTION_ORDER.filter((s) => tailored_sections[s])
+  );
+
+  const cleanCopy = activeSections
+    .map((key) => {
+      if (key === 'summary' && tailored_sections.summary?.tailored) {
+        return `## Summary\n\n${tailored_sections.summary.tailored}`;
+      }
+      if (key === 'experience' && tailored_sections.experience?.length) {
+        return `## Experience\n\n${formatBulletList(tailored_sections.experience)}`;
+      }
+      if (key === 'projects' && tailored_sections.projects?.length) {
+        return `## Projects\n\n${formatBulletList(tailored_sections.projects)}`;
+      }
+      return null;
+    })
     .filter(Boolean)
     .join('\n\n');
 
-  const diffSections = ['experience', 'projects', 'summary'].filter(
-    (key) => tailored_sections[key]
-  );
+  const diffSections = activeSections.filter((key) => tailored_sections[key]);
 
-  const allChanges = [
-    ...collectBullets(tailored_sections, 'experience'),
-    ...collectBullets(tailored_sections, 'projects'),
-    ...collectBullets(tailored_sections, 'summary'),
-  ];
+  const allChanges = activeSections.flatMap((key) =>
+    collectBullets(tailored_sections, key)
+  );
 
   return (
     <div className="space-y-4">
