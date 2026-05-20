@@ -1,6 +1,6 @@
 # Project: Resume Tailor
 Stack: React + Tailwind (client/), Node.js/Express (server/)
-Auth: Clerk (JWT verification via @clerk/clerk-sdk-node)
+Auth: Clerk (@clerk/clerk-react client, @clerk/clerk-sdk-node server middleware)
 Payments: Stripe (webhooks use raw body — never use express.json() on /webhooks/stripe)
 DB: PostgreSQL via pg library
 AI: Anthropic SDK, model claude-sonnet-4-6 (override via ANTHROPIC_MODEL)

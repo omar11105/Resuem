@@ -9,14 +9,24 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-export function setAuthToken(getToken) {
-  api.interceptors.request.use(async (config) => {
-    const token = await getToken?.();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  });
+let tokenGetter = null;
+
+api.interceptors.request.use(async (config) => {
+  const token = await tokenGetter?.();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+/** Register Clerk getToken — call once from a component using useAuth() */
+export function registerAuthTokenGetter(getToken) {
+  tokenGetter = getToken;
+}
+
+export async function getAuthHeaders() {
+  const token = await tokenGetter?.();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export function getApiBaseUrl() {

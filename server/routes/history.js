@@ -1,20 +1,17 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import { getOrCreateUser, query } from '../lib/db.js';
+import { query } from '../lib/db.js';
 
 const router = Router();
 
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const user = await getOrCreateUser(req.auth.userId);
-
     const result = await query(
-      `SELECT id, job_title, created_at
+      `SELECT id, job_description_snippet, sections_tailored, created_at
        FROM tailorings
-       WHERE user_id = $1
+       WHERE clerk_id = $1
        ORDER BY created_at DESC
        LIMIT 50`,
-      [user.id]
+      [req.auth.userId]
     );
 
     res.json({ items: result.rows });

@@ -1,23 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/clerk-react';
-import api, { setAuthToken } from '../lib/api';
+import api from '../lib/api';
 import UsageBadge from './UsageBadge';
 import { useUsage } from '../hooks/useUsage';
 
 export default function Dashboard() {
-  const { getToken } = useAuth();
   const { usage } = useUsage();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setAuthToken(getToken);
     api
       .get('/history')
       .then(({ data }) => setHistory(data.items ?? []))
       .catch(() => setHistory([]))
       .finally(() => setLoading(false));
-  }, [getToken]);
+  }, []);
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
@@ -42,8 +39,13 @@ export default function Dashboard() {
                 className="rounded-lg border border-polished-200 bg-white px-4 py-3 text-sm"
               >
                 <span className="font-medium text-polished-900">
-                  {item.job_title ?? 'Untitled role'}
+                  {item.job_description_snippet ?? 'Untitled role'}
                 </span>
+                {item.sections_tailored?.length > 0 && (
+                  <span className="ml-2 text-polished-400">
+                    ({item.sections_tailored.join(', ')})
+                  </span>
+                )}
                 <span className="ml-2 text-polished-400">
                   {new Date(item.created_at).toLocaleDateString()}
                 </span>

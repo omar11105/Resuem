@@ -1,25 +1,29 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import { getOrCreateUser, query } from '../lib/db.js';
+import { query } from '../lib/db.js';
 
 const router = Router();
 const FREE_DAILY_LIMIT = 1;
 
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const user = await getOrCreateUser(req.auth.userId);
-    const limit = user.plan === 'pro' ? 999 : FREE_DAILY_LIMIT;
-    const today = new Date().toISOString().slice(0, 10);
+    const userResult = await query(
+      'SELECT plan FROM users WHERE clerk_id = $1',
+      [req.auth.userId]
+    );
+    const plan = userResult.rows[0]?.plan ?? 'free';
+    const limit = plan === 'pro' ? 999 : FREE_DAILY_LIMIT;
 
-    const result = await query(
-      `SELECT count FROM usage WHERE user_id = $1 AND date = $2`,
-      [user.id, today]
+    const countResult = await query(
+      `SELECT COUNT(*)::int AS count
+       FROM tailorings
+       WHERE clerk_id = $1 AND created_at >= CURRENT_DATE`,
+      [req.auth.userId]
     );
 
     res.json({
-      count: result.rows[0]?.count ?? 0,
+      count: countResult.rows[0]?.count ?? 0,
       limit,
-      plan: user.plan,
+      plan,
     });
   } catch (err) {
     console.error('Usage error:', err);

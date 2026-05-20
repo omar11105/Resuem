@@ -4,6 +4,7 @@ import multer from 'multer';
 import Anthropic from '@anthropic-ai/sdk';
 import { extractPDFText } from '../middleware/parsePDF.js';
 import { buildTailoringPrompt } from '../lib/claudePrompt.js';
+import { query } from '../lib/db.js';
 
 const router = Router();
 
@@ -147,15 +148,36 @@ router.post('/', handleUpload, async (req, res) => {
     const warnings = [...(result.warnings ?? [])];
     if (pdfWarning) warnings.unshift(pdfWarning);
 
-    res.json({
+    const tailored_sections = filterTailoredSections(
+      result.tailored_sections,
+      sections
+    );
+
+    const payload = {
       ...result,
-      tailored_sections: filterTailoredSections(
-        result.tailored_sections,
-        sections
-      ),
+      tailored_sections,
       sections_tailored: sections,
       warnings,
-    });
+    };
+
+    if (req.auth?.userId) {
+      try {
+        await query(
+          `INSERT INTO tailorings (clerk_id, job_description_snippet, sections_tailored, result_json)
+           VALUES ($1, $2, $3, $4)`,
+          [
+            req.auth.userId,
+            jobDescription.slice(0, 200),
+            sections,
+            JSON.stringify(payload),
+          ]
+        );
+      } catch (dbErr) {
+        console.error('Failed to save tailoring:', dbErr);
+      }
+    }
+
+    res.json(payload);
   } catch (err) {
     console.error('Tailor error:', err);
 

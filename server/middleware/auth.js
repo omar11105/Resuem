@@ -1,41 +1,40 @@
-import { verifyToken } from '@clerk/backend';
+import { createRequire } from 'module';
+import { query } from '../lib/db.js';
 
-export async function requireAuth(req, res, next) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+const require = createRequire(import.meta.url);
+const { ClerkExpressRequireAuth, ClerkExpressWithAuth } = require('@clerk/clerk-sdk-node');
 
-  const token = header.slice(7);
+/** Protected routes — 401 if not signed in */
+export const requireUser = ClerkExpressRequireAuth();
 
-  try {
-    const payload = await verifyToken(token, {
-      secretKey: process.env.CLERK_SECRET_KEY,
-    });
-    req.auth = {
-      userId: payload.sub,
-      sessionId: payload.sid,
-    };
-    next();
-  } catch {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
+/** Public routes that may read auth context when a token is present */
+export const withOptionalUser = ClerkExpressWithAuth();
+
+function getEmailFromAuth(auth) {
+  const claims = auth?.sessionClaims;
+  if (!claims) return null;
+  return claims.email ?? claims.primary_email_address ?? null;
 }
 
-export async function optionalAuth(req, _res, next) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
+/** Upsert user on every authed request (avoids webhook race on first login) */
+export async function ensureUser(req, res, next) {
+  const userId = req.auth?.userId;
+  if (!userId) {
     return next();
   }
 
-  const token = header.slice(7);
+  const email = getEmailFromAuth(req.auth);
+
   try {
-    const payload = await verifyToken(token, {
-      secretKey: process.env.CLERK_SECRET_KEY,
-    });
-    req.auth = { userId: payload.sub, sessionId: payload.sid };
-  } catch {
-    // ignore invalid token for optional routes
+    await query(
+      `INSERT INTO users (clerk_id, email) VALUES ($1, $2)
+       ON CONFLICT (clerk_id) DO NOTHING`,
+      [userId, email]
+    );
+    req.user = { clerkId: userId, email };
+    next();
+  } catch (err) {
+    console.error('ensureUser error:', err);
+    res.status(500).json({ error: 'Failed to sync user' });
   }
-  next();
 }
