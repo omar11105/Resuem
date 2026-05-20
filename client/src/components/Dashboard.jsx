@@ -32,23 +32,29 @@ export default function Dashboard() {
         ) : history.length === 0 ? (
           <p className="mt-4 text-sm text-polished-500">No tailorings yet.</p>
         ) : (
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 divide-y divide-polished-100 rounded-xl border border-polished-200 bg-white">
             {history.map((item) => (
               <li
                 key={item.id}
-                className="rounded-lg border border-polished-200 bg-white px-4 py-3 text-sm"
+                className="flex items-center justify-between gap-4 px-4 py-3"
               >
-                <span className="font-medium text-polished-900">
-                  {item.job_description_snippet ?? 'Untitled role'}
-                </span>
-                {item.sections_tailored?.length > 0 && (
-                  <span className="ml-2 text-polished-400">
-                    ({item.sections_tailored.join(', ')})
-                  </span>
-                )}
-                <span className="ml-2 text-polished-400">
+                <div className="min-w-0">
+                  {item.company_name && (
+                    <p className="truncate text-sm font-medium text-polished-900">
+                      {item.company_name}
+                    </p>
+                  )}
+                  <p
+                    className={`truncate text-sm ${
+                      item.company_name ? 'text-polished-500' : 'font-medium text-polished-900'
+                    }`}
+                  >
+                    {item.job_title}
+                  </p>
+                </div>
+                <time className="shrink-0 text-xs text-polished-400">
                   {new Date(item.created_at).toLocaleDateString()}
-                </span>
+                </time>
               </li>
             ))}
           </ul>
