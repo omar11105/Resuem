@@ -1,0 +1,16 @@
+# Project: Resume Tailor
+Stack: React + Tailwind (client/), Node.js/Express (server/)
+Auth: Clerk (JWT verification via @clerk/clerk-sdk-node)
+Payments: Stripe (webhooks use raw body — never use express.json() on /webhooks/stripe)
+DB: PostgreSQL via pg library
+AI: Anthropic SDK, model claude-sonnet-4-6 (override via ANTHROPIC_MODEL)
+
+Rules:
+- Never hardcode API keys or secrets. Use process.env.* always.
+- All user input must be sanitized before DB insertion. Use parameterized queries ($1, $2 syntax).
+- Stripe webhook route must use express.raw() not express.json()
+- Always validate file uploads: check mimetype, enforce 5MB limit via multer
+- Rate limit middleware runs before business logic on all /api/* routes
+- Never expose internal error messages to the client. Log internally, return generic message.
+- Use async/await, not .then() chains
+- Every DB query uses parameterized statements. No string concatenation in SQL.
