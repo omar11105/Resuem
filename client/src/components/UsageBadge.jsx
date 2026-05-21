@@ -1,15 +1,18 @@
 export default function UsageBadge({ count = 0, limit = 1, isPro = false }) {
   if (isPro) {
     return (
-      <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+      <span className="label-editorial border border-resuem-success/40 bg-resuem-success-dim px-md py-xs text-resuem-success">
         Pro
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center rounded-full bg-polished-100 px-3 py-1 text-xs font-medium text-polished-700">
-      {count}/{limit} tailorings used today
+    <span className="font-mono text-xs text-resuem-muted">
+      <span className="text-resuem-text-secondary">{count}</span>
+      <span className="text-resuem-muted">/</span>
+      <span className="text-resuem-text-secondary">{limit}</span>
+      <span className="ml-xs hidden sm:inline">today</span>
     </span>
   );
 }

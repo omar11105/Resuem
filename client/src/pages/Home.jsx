@@ -1,60 +1,49 @@
 import { Link } from 'react-router-dom';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 import BeforeAfterDemo from '../components/BeforeAfterDemo';
+import { AppHeader } from '../components/AppShell';
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
-      <header className="flex items-center justify-between px-6 py-4">
-        <span className="text-lg font-semibold tracking-tight">Polished</span>
-        <nav className="flex items-center gap-4">
-          <SignedIn>
-            <Link to="/dashboard" className="text-sm text-polished-600 hover:text-polished-900">
-              Dashboard
-            </Link>
-            <Link
-              to="/app"
-              className="rounded-lg bg-polished-900 px-4 py-2 text-sm font-medium text-white hover:bg-polished-800"
-            >
-              Tailor resume
-            </Link>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button
-                type="button"
-                className="rounded-lg bg-polished-900 px-4 py-2 text-sm font-medium text-white hover:bg-polished-800"
-              >
-                Sign in
-              </button>
-            </SignInButton>
-          </SignedOut>
-        </nav>
-      </header>
+    <div className="min-h-[100dvh] bg-resuem-bg">
+      <AppHeader>
+        <SignedIn>
+          <Link to="/dashboard" className="link-subtle hidden sm:inline">
+            Dashboard
+          </Link>
+          <Link to="/app" className="btn-primary">
+            Tailor resume
+          </Link>
+          <UserButton afterSignOutUrl="/" />
+        </SignedIn>
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button type="button" className="btn-primary">
+              Sign in
+            </button>
+          </SignInButton>
+        </SignedOut>
+      </AppHeader>
 
       <BeforeAfterDemo />
 
-      <div className="pb-16 text-center">
+      <footer className="border-t border-resuem-border px-lg py-2xl text-center sm:px-xl">
         <SignedIn>
-          <Link
-            to="/app"
-            className="inline-flex rounded-lg bg-polished-900 px-6 py-3 text-sm font-medium text-white hover:bg-polished-800"
-          >
+          <Link to="/app" className="btn-primary">
             Tailor resume
           </Link>
         </SignedIn>
         <SignedOut>
           <SignInButton mode="modal">
-            <button
-              type="button"
-              className="inline-flex rounded-lg bg-polished-900 px-6 py-3 text-sm font-medium text-white hover:bg-polished-800"
-            >
+            <button type="button" className="btn-primary">
               Get started — it&apos;s free
             </button>
           </SignInButton>
         </SignedOut>
-      </div>
+        <p className="mt-xl label-editorial">
+          Built for CS students and job seekers
+        </p>
+      </footer>
     </div>
   );
 }

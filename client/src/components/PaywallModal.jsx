@@ -54,22 +54,29 @@ export default function PaywallModal({ open, onClose, reason, onPlanActivated })
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-        <h2 className="text-xl font-semibold text-polished-950">Upgrade to continue</h2>
-        <p className="mt-2 text-sm text-polished-600">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-lg backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="w-full max-w-md border border-resuem-border bg-resuem-surface-raised p-2xl shadow-2xl">
+        <p className="label-editorial">Upgrade</p>
+        <h2 className="font-display mt-sm text-2xl font-medium text-resuem-text">
+          Continue with Pro
+        </h2>
+        <p className="mt-md text-sm leading-relaxed text-resuem-text-secondary">
           {activating
             ? 'Thanks! Your plan is activating — this usually takes a few seconds.'
             : reason === 'download'
               ? 'PDF download is available on Pro.'
               : "You've used your free tailoring for today. Upgrade for unlimited runs and PDF export."}
         </p>
-        <div className="mt-6 flex gap-3">
+        <div className="mt-xl flex flex-col gap-sm sm:flex-row">
           <button
             type="button"
             onClick={onClose}
             disabled={activating}
-            className="flex-1 rounded-lg border border-polished-200 px-4 py-2 text-sm font-medium text-polished-700 hover:bg-polished-50 disabled:opacity-50"
+            className="btn-secondary flex-1 justify-center disabled:opacity-50"
           >
             Maybe later
           </button>
@@ -77,7 +84,7 @@ export default function PaywallModal({ open, onClose, reason, onPlanActivated })
             type="button"
             onClick={handleUpgrade}
             disabled={activating}
-            className="flex-1 rounded-lg bg-polished-900 px-4 py-2 text-sm font-medium text-white hover:bg-polished-800 disabled:opacity-50"
+            className="btn-primary flex-1 disabled:opacity-50"
           >
             {activating ? 'Activating…' : 'Upgrade to Pro — $9/month'}
           </button>

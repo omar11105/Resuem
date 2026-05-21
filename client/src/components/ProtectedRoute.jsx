@@ -6,8 +6,9 @@ export default function ProtectedRoute({ children }) {
 
   if (!isLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-polished-500">
-        Loading...
+      <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-md bg-resuem-bg">
+        <div className="h-px w-12 animate-pulse bg-resuem-accent" />
+        <p className="label-editorial">Loading</p>
       </div>
     );
   }

@@ -6,6 +6,7 @@ import SectionSelector from '../components/SectionSelector';
 import OutputTabs from '../components/OutputTabs';
 import UsageBadge from '../components/UsageBadge';
 import PaywallModal from '../components/PaywallModal';
+import { AppHeader, PageMain } from '../components/AppShell';
 import { useTailoring } from '../hooks/useTailoring';
 import { useUsage } from '../hooks/useUsage';
 
@@ -55,58 +56,57 @@ export default function AppPage() {
   };
 
   return (
-    <div className="min-h-screen">
-      <header className="flex items-center justify-between border-b border-polished-200 px-6 py-4">
-        <Link to="/" className="text-lg font-semibold tracking-tight">
-          Polished
+    <div className="min-h-[100dvh] bg-resuem-bg">
+      <AppHeader>
+        <Link to="/dashboard" className="link-subtle hidden sm:inline">
+          Dashboard
         </Link>
-        <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="text-sm text-polished-600 hover:text-polished-900">
-            Dashboard
-          </Link>
-          <UsageBadge count={usage.count} limit={usage.limit} isPro={isPro} />
-          <UserButton afterSignOutUrl="/" />
-        </div>
-      </header>
+        <UsageBadge count={usage.count} limit={usage.limit} isPro={isPro} />
+        <UserButton afterSignOutUrl="/" />
+      </AppHeader>
 
-      <main className="mx-auto max-w-4xl px-6 py-10">
-        <h1 className="text-2xl font-semibold text-polished-950">Tailor your resume</h1>
-        <p className="mt-1 text-sm text-polished-600">
-          Upload a PDF or paste text, add a job description, and get tailored sections.
-        </p>
+      <PageMain narrow={!result}>
+        <header className="max-w-prose border-b border-resuem-border pb-xl">
+          <p className="label-editorial">Tailor</p>
+          <h1 className="font-display mt-sm text-3xl font-medium tracking-tight text-resuem-text sm:text-4xl">
+            Shape your resume for this role
+          </h1>
+          <p className="mt-md text-sm leading-relaxed text-resuem-text-secondary">
+            Upload a PDF or paste text, add a job description, and get tailored sections.
+          </p>
+        </header>
 
         {planNotice && (
-          <p className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <p className="mt-lg border border-resuem-success/30 bg-resuem-success-dim px-lg py-md text-sm text-resuem-success">
             {planNotice}
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-8">
-          <div>
-            <label className="text-sm font-medium text-polished-800">Resume</label>
-            <div className="mt-2">
-              <ResumeUploader
-                mode={uploadMode}
-                onModeChange={setUploadMode}
-                pasteValue={resumePaste}
-                onPasteChange={setResumePaste}
-                file={resumeFile}
-                onFileChange={setResumeFile}
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="mt-2xl space-y-2xl">
+          <div className="space-y-md">
+            <label className="label-editorial">Resume</label>
+            <ResumeUploader
+              mode={uploadMode}
+              onModeChange={setUploadMode}
+              pasteValue={resumePaste}
+              onPasteChange={setResumePaste}
+              file={resumeFile}
+              onFileChange={setResumeFile}
+            />
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-polished-800">
+          <div className="space-y-md">
+            <label className="label-editorial" htmlFor="job-description">
               Job description
             </label>
             <textarea
+              id="job-description"
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
               placeholder="Paste the job posting..."
               rows={8}
               required
-              className="mt-2 w-full rounded-xl border border-polished-200 bg-white px-4 py-3 text-sm focus:border-polished-500 focus:outline-none focus:ring-1 focus:ring-polished-500"
+              className="input-field min-h-[180px] resize-y"
             />
           </div>
 
@@ -115,16 +115,20 @@ export default function AppPage() {
           <button
             type="submit"
             disabled={loading || !jobDescription || !hasResume}
-            className="w-full rounded-xl bg-polished-900 py-3 text-sm font-medium text-white hover:bg-polished-800 disabled:opacity-50"
+            className="btn-primary w-full sm:w-auto"
           >
             {loading ? 'Tailoring...' : 'Tailor resume'}
           </button>
         </form>
 
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        {error && (
+          <p className="mt-lg text-sm text-resuem-error" role="alert">
+            {error}
+          </p>
+        )}
 
         {result && (
-          <div className="mt-10">
+          <div className="mt-3xl border-t border-resuem-border pt-3xl">
             <OutputTabs
               result={result}
               isPro={isPro}
@@ -132,7 +136,7 @@ export default function AppPage() {
             />
           </div>
         )}
-      </main>
+      </PageMain>
 
       <PaywallModal
         open={paywallOpen}
