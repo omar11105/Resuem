@@ -14,6 +14,8 @@ CREATE TABLE tailorings (
   id SERIAL PRIMARY KEY,
   clerk_id VARCHAR(100) REFERENCES users(clerk_id),
   job_description_snippet TEXT,
+  job_title VARCHAR(255),
+  company_name VARCHAR(255),
   sections_tailored TEXT[],
   result_json JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW()

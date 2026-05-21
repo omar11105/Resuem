@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { UserButton } from '@clerk/clerk-react';
 import ResumeUploader from '../components/ResumeUploader';
 import SectionSelector from '../components/SectionSelector';
 import OutputTabs from '../components/OutputTabs';
+import UsageBadge from '../components/UsageBadge';
 import { useTailoring } from '../hooks/useTailoring';
+import { useUsage } from '../hooks/useUsage';
 
 export default function AppPage() {
   const [resumePaste, setResumePaste] = useState('');
@@ -13,6 +16,7 @@ export default function AppPage() {
   const [sections, setSections] = useState(['experience', 'projects', 'summary']);
 
   const { tailor, loading, result, error } = useTailoring();
+  const { usage, refresh } = useUsage();
 
   const hasResume =
     uploadMode === 'paste' ? resumePaste.trim().length > 0 : Boolean(resumeFile);
@@ -20,20 +24,32 @@ export default function AppPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await tailor({
-      resumeText: uploadMode === 'paste' ? resumePaste : undefined,
-      resumeFile: uploadMode === 'pdf' ? resumeFile : undefined,
-      jobDescription,
-      sections,
-    });
+    try {
+      await tailor({
+        resumeText: uploadMode === 'paste' ? resumePaste : undefined,
+        resumeFile: uploadMode === 'pdf' ? resumeFile : undefined,
+        jobDescription,
+        sections,
+      });
+      await refresh();
+    } catch {
+      // error surfaced via hook state
+    }
   };
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-polished-200 px-6 py-4">
+      <header className="flex items-center justify-between border-b border-polished-200 px-6 py-4">
         <Link to="/" className="text-lg font-semibold tracking-tight">
           Polished
         </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/dashboard" className="text-sm text-polished-600 hover:text-polished-900">
+            Dashboard
+          </Link>
+          <UsageBadge count={usage.count} limit={usage.limit} />
+          <UserButton afterSignOutUrl="/" />
+        </div>
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-10">

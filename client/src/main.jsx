@@ -1,18 +1,54 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ClerkProvider } from '@clerk/clerk-react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import AuthTokenSync from './components/AuthTokenSync';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import AppPage from './pages/App';
+import DashboardPage from './pages/Dashboard';
+import TailoringDetailPage from './pages/TailoringDetail';
 import './index.css';
+
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!clerkPubKey) {
+  console.warn('Missing VITE_CLERK_PUBLISHABLE_KEY in client/.env');
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/app" element={<AppPage />} />
-        <Route path="*" element={<Navigate to="/app" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <ClerkProvider publishableKey={clerkPubKey}>
+      <AuthTokenSync />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/app"
+            element={
+              <ProtectedRoute>
+                <AppPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tailoring/:id"
+            element={
+              <ProtectedRoute>
+                <TailoringDetailPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </ClerkProvider>
   </React.StrictMode>
 );
