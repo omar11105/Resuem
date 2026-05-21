@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../lib/api';
 import UsageBadge from './UsageBadge';
 import { useUsage } from '../hooks/useUsage';
@@ -34,27 +35,31 @@ export default function Dashboard() {
         ) : (
           <ul className="mt-4 divide-y divide-polished-100 rounded-xl border border-polished-200 bg-white">
             {history.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-center justify-between gap-4 px-4 py-3"
-              >
-                <div className="min-w-0">
-                  {item.company_name && (
-                    <p className="truncate text-sm font-medium text-polished-900">
-                      {item.company_name}
+              <li key={item.id}>
+                <Link
+                  to={`/tailoring/${item.id}`}
+                  className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-polished-50"
+                >
+                  <div className="min-w-0">
+                    {item.company_name && (
+                      <p className="truncate text-sm font-medium text-polished-900">
+                        {item.company_name}
+                      </p>
+                    )}
+                    <p
+                      className={`truncate text-sm ${
+                        item.company_name
+                          ? 'text-polished-500'
+                          : 'font-medium text-polished-900'
+                      }`}
+                    >
+                      {item.job_title}
                     </p>
-                  )}
-                  <p
-                    className={`truncate text-sm ${
-                      item.company_name ? 'text-polished-500' : 'font-medium text-polished-900'
-                    }`}
-                  >
-                    {item.job_title}
-                  </p>
-                </div>
-                <time className="shrink-0 text-xs text-polished-400">
-                  {new Date(item.created_at).toLocaleDateString()}
-                </time>
+                  </div>
+                  <time className="shrink-0 text-xs text-polished-400">
+                    {new Date(item.created_at).toLocaleDateString()}
+                  </time>
+                </Link>
               </li>
             ))}
           </ul>

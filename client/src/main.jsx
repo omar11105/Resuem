@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import AppPage from './pages/App';
 import DashboardPage from './pages/Dashboard';
+import TailoringDetailPage from './pages/TailoringDetail';
 import './index.css';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -35,6 +36,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tailoring/:id"
+            element={
+              <ProtectedRoute>
+                <TailoringDetailPage />
               </ProtectedRoute>
             }
           />
