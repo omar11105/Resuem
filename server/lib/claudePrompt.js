@@ -39,6 +39,10 @@ function buildOutputFormatExample(sections) {
     .join(',\n');
 
   return `{
+  "job_meta": {
+    "company_name": "Hiring company name only (not 'About us' or section headers)",
+    "job_title": "Specific role title being hired for"
+  },
   "tailored_sections": {
 ${sectionBlocks}
   },
@@ -102,6 +106,9 @@ For BAD bullets: Rewrite completely. Start with the strongest possible action ve
 - Preserve the candidate's actual accomplishments exactly — your job is to present them better, not replace them.
 - If the JD is too short to extract clear keywords (under 50 words), strengthen bullets generally without JD mirroring and note this in your explanation.
 - If a section listed in sections_to_tailor does not exist in the resume, skip it silently.${forbiddenRule}
+
+## Job metadata (required)
+Before tailoring, read the job description and fill job_meta with the actual employer name and the specific role title. Never use section headings like "About us", "Job description", or "Overview" as the company or title.
 
 ## Output format
 

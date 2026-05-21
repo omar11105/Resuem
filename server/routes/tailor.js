@@ -5,6 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { extractPDFText } from '../middleware/parsePDF.js';
 import { buildTailoringPrompt } from '../lib/claudePrompt.js';
 import { query } from '../lib/db.js';
+import { resolveJobMeta } from '../lib/extractJobMeta.js';
 
 const router = Router();
 
@@ -153,8 +154,14 @@ router.post('/', handleUpload, async (req, res) => {
       sections
     );
 
+    const { jobTitle, companyName } = resolveJobMeta(result, jobDescription);
+
     const payload = {
       ...result,
+      job_meta: {
+        company_name: companyName,
+        job_title: jobTitle,
+      },
       tailored_sections,
       sections_tailored: sections,
       warnings,
@@ -163,11 +170,15 @@ router.post('/', handleUpload, async (req, res) => {
     if (req.auth?.userId) {
       try {
         await query(
-          `INSERT INTO tailorings (clerk_id, job_description_snippet, sections_tailored, result_json)
-           VALUES ($1, $2, $3, $4)`,
+          `INSERT INTO tailorings (
+             clerk_id, job_description_snippet, job_title, company_name,
+             sections_tailored, result_json
+           ) VALUES ($1, $2, $3, $4, $5, $6)`,
           [
             req.auth.userId,
             jobDescription.slice(0, 200),
+            jobTitle,
+            companyName,
             sections,
             JSON.stringify(payload),
           ]
