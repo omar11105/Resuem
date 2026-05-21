@@ -31,7 +31,16 @@ export async function ensureUser(req, res, next) {
        ON CONFLICT (clerk_id) DO NOTHING`,
       [userId, email]
     );
-    req.user = { clerkId: userId, email };
+    const row = await query('SELECT plan, paddle_customer_id FROM users WHERE clerk_id = $1', [
+      userId,
+    ]);
+    const dbUser = row.rows[0];
+    req.user = {
+      clerkId: userId,
+      email,
+      plan: dbUser?.plan ?? 'free',
+      paddleCustomerId: dbUser?.paddle_customer_id ?? null,
+    };
     next();
   } catch (err) {
     console.error('ensureUser error:', err);

@@ -5,6 +5,7 @@ import ResumeUploader from '../components/ResumeUploader';
 import SectionSelector from '../components/SectionSelector';
 import OutputTabs from '../components/OutputTabs';
 import UsageBadge from '../components/UsageBadge';
+import PaywallModal from '../components/PaywallModal';
 import { useTailoring } from '../hooks/useTailoring';
 import { useUsage } from '../hooks/useUsage';
 
@@ -14,15 +15,28 @@ export default function AppPage() {
   const [uploadMode, setUploadMode] = useState('paste');
   const [jobDescription, setJobDescription] = useState('');
   const [sections, setSections] = useState(['experience', 'projects', 'summary']);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [paywallReason, setPaywallReason] = useState('limit');
+  const [planNotice, setPlanNotice] = useState(null);
 
   const { tailor, loading, result, error } = useTailoring();
-  const { usage, refresh } = useUsage();
+  const { usage, atLimit, isPro, refresh } = useUsage();
 
   const hasResume =
     uploadMode === 'paste' ? resumePaste.trim().length > 0 : Boolean(resumeFile);
 
+  const openPaywall = (reason = 'limit') => {
+    setPaywallReason(reason);
+    setPaywallOpen(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isPro && atLimit) {
+      openPaywall('limit');
+      return;
+    }
 
     try {
       await tailor({
@@ -32,8 +46,11 @@ export default function AppPage() {
         sections,
       });
       await refresh();
-    } catch {
-      // error surfaced via hook state
+    } catch (err) {
+      if (err?.code === 'PAYWALL') {
+        openPaywall('limit');
+        return;
+      }
     }
   };
 
@@ -47,7 +64,7 @@ export default function AppPage() {
           <Link to="/dashboard" className="text-sm text-polished-600 hover:text-polished-900">
             Dashboard
           </Link>
-          <UsageBadge count={usage.count} limit={usage.limit} />
+          <UsageBadge count={usage.count} limit={usage.limit} isPro={isPro} />
           <UserButton afterSignOutUrl="/" />
         </div>
       </header>
@@ -57,6 +74,12 @@ export default function AppPage() {
         <p className="mt-1 text-sm text-polished-600">
           Upload a PDF or paste text, add a job description, and get tailored sections.
         </p>
+
+        {planNotice && (
+          <p className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            {planNotice}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-8">
           <div>
@@ -102,10 +125,24 @@ export default function AppPage() {
 
         {result && (
           <div className="mt-10">
-            <OutputTabs result={result} />
+            <OutputTabs
+              result={result}
+              isPro={isPro}
+              onRequestPaywall={() => openPaywall('download')}
+            />
           </div>
         )}
       </main>
+
+      <PaywallModal
+        open={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        reason={paywallReason}
+        onPlanActivated={() => {
+          refresh();
+          setPlanNotice('Welcome to Pro! Unlimited tailorings and PDF export are now unlocked.');
+        }}
+      />
     </div>
   );
 }

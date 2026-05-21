@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthTokenSync from './components/AuthTokenSync';
+import PaddleInit from './components/PaddleInit';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import AppPage from './pages/App';
@@ -20,6 +21,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={clerkPubKey}>
       <AuthTokenSync />
+      <PaddleInit />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

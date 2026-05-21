@@ -47,7 +47,7 @@ function collectBullets(tailoredSections, sectionKey) {
 
 const SECTION_ORDER = ['experience', 'projects', 'summary'];
 
-export default function OutputTabs({ result }) {
+export default function OutputTabs({ result, isPro = false, onRequestPaywall }) {
   const [activeView, setActiveView] = useState('diff');
 
   if (!result?.tailored_sections) return null;
@@ -195,13 +195,36 @@ export default function OutputTabs({ result }) {
 
           {activeView === 'copy' && (
             <div>
-              <button
-                type="button"
-                onClick={() => navigator.clipboard.writeText(cleanCopy)}
-                className="mb-4 rounded-lg border border-polished-200 px-3 py-1.5 text-xs font-medium text-polished-700 hover:bg-polished-50"
-              >
-                Copy all
-              </button>
+              <div className="mb-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard.writeText(cleanCopy)}
+                  className="rounded-lg border border-polished-200 px-3 py-1.5 text-xs font-medium text-polished-700 hover:bg-polished-50"
+                >
+                  Copy all
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!isPro) {
+                      onRequestPaywall?.();
+                      return;
+                    }
+                    const blob = new Blob([cleanCopy], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'tailored-resume.txt';
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="rounded-lg border border-polished-200 px-3 py-1.5 text-xs font-medium text-polished-700 hover:bg-polished-50"
+                >
+                  Download PDF
+                </button>
+              </div>
               <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-polished-800">
                 {cleanCopy}
               </pre>
