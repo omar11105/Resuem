@@ -378,6 +378,55 @@
   .ats-ring-progress {
     transition: stroke-dashoffset var(--duration-slow) var(--ease-out);
   }
+
+  /* Legal documents */
+  .legal-doc section h2 {
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-md);
+  }
+
+  .legal-doc p,
+  .legal-doc li {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: var(--color-text-secondary);
+  }
+
+  .legal-doc ul {
+    list-style: disc;
+    padding-left: var(--space-lg);
+    margin-top: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .legal-doc .legal-lead {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+  }
+
+  .legal-doc .legal-callout {
+    border-left: 2px solid var(--color-accent);
+    padding-left: var(--space-lg);
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: var(--color-text);
+  }
+
+  .legal-doc .legal-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .legal-doc .legal-link:hover {
+    color: var(--color-accent-bright);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

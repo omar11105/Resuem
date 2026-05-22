@@ -5,7 +5,7 @@ import { AppHeader } from '../components/AppShell';
 
 export default function Home() {
   return (
-    <div className="min-h-[100dvh] bg-resuem-bg">
+    <div className="bg-resuem-bg">
       <AppHeader>
         <SignedIn>
           <Link to="/dashboard" className="link-subtle hidden sm:inline">
@@ -27,7 +27,7 @@ export default function Home() {
 
       <BeforeAfterDemo />
 
-      <footer className="border-t border-resuem-border px-lg py-2xl text-center sm:px-xl">
+      <section className="border-t border-resuem-border px-lg py-2xl text-center sm:px-xl">
         <SignedIn>
           <Link to="/app" className="btn-primary">
             Tailor resume
@@ -43,7 +43,7 @@ export default function Home() {
         <p className="mt-xl label-editorial">
           Built for CS students and job seekers
         </p>
-      </footer>
+      </section>
     </div>
   );
 }
