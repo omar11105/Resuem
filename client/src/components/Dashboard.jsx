@@ -5,7 +5,7 @@ import UsageBadge from './UsageBadge';
 import { useUsage } from '../hooks/useUsage';
 
 export default function Dashboard() {
-  const { usage } = useUsage();
+  const { usage, isPro } = useUsage();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,45 +18,60 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-polished-950">Dashboard</h1>
-        <UsageBadge count={usage.count} limit={usage.limit} />
+    <div className="space-y-2xl">
+      <div className="flex flex-col gap-md border-b border-resuem-border pb-xl sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="label-editorial">History</p>
+          <h1 className="font-display mt-sm text-3xl font-medium text-resuem-text sm:text-4xl">
+            Dashboard
+          </h1>
+        </div>
+        <UsageBadge count={usage.count} limit={usage.limit} isPro={isPro} />
       </div>
 
-      <section className="mt-8">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-polished-500">
-          Past tailorings
-        </h2>
+      <section>
+        <h2 className="label-editorial">Past tailorings</h2>
         {loading ? (
-          <p className="mt-4 text-sm text-polished-500">Loading...</p>
+          <div className="mt-xl space-y-md">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-14 animate-pulse border border-resuem-border bg-resuem-surface"
+              />
+            ))}
+          </div>
         ) : history.length === 0 ? (
-          <p className="mt-4 text-sm text-polished-500">No tailorings yet.</p>
+          <p className="mt-xl text-sm text-resuem-muted">
+            No tailorings yet.{' '}
+            <Link to="/app" className="text-resuem-accent hover:text-resuem-accent-bright">
+              Start one
+            </Link>
+          </p>
         ) : (
-          <ul className="mt-4 divide-y divide-polished-100 rounded-xl border border-polished-200 bg-white">
+          <ul className="mt-lg divide-y divide-resuem-border border border-resuem-border">
             {history.map((item) => (
               <li key={item.id}>
                 <Link
                   to={`/tailoring/${item.id}`}
-                  className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-polished-50"
+                  className="group flex items-center justify-between gap-lg px-lg py-md transition-colors duration-fast hover:bg-resuem-accent-dim"
                 >
                   <div className="min-w-0">
                     {item.company_name && (
-                      <p className="truncate text-sm font-medium text-polished-900">
+                      <p className="truncate font-display text-base text-resuem-text">
                         {item.company_name}
                       </p>
                     )}
                     <p
                       className={`truncate text-sm ${
                         item.company_name
-                          ? 'text-polished-500'
-                          : 'font-medium text-polished-900'
+                          ? 'text-resuem-muted'
+                          : 'font-display text-base text-resuem-text'
                       }`}
                     >
                       {item.job_title}
                     </p>
                   </div>
-                  <time className="shrink-0 text-xs text-polished-400">
+                  <time className="shrink-0 font-mono text-xs text-resuem-muted transition-colors duration-fast group-hover:text-resuem-accent">
                     {new Date(item.created_at).toLocaleDateString()}
                   </time>
                 </Link>

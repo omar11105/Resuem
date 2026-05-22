@@ -5,8 +5,8 @@ CREATE TABLE users (
   clerk_id VARCHAR(100) UNIQUE NOT NULL,
   email VARCHAR(255),
   plan VARCHAR(10) DEFAULT 'free',
-  stripe_customer_id VARCHAR(100),
-  stripe_subscription_id VARCHAR(100),
+  paddle_customer_id VARCHAR(100),
+  paddle_subscription_id VARCHAR(100),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

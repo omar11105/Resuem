@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AtsScore from './AtsScore';
 
 const VIEW_TABS = [
   { id: 'diff', label: 'Side-by-side' },
@@ -7,9 +8,9 @@ const VIEW_TABS = [
 ];
 
 const CLASSIFICATION_STYLES = {
-  GOOD: 'bg-emerald-100 text-emerald-800',
-  MID: 'bg-amber-100 text-amber-800',
-  BAD: 'bg-rose-100 text-rose-800',
+  GOOD: 'border-resuem-success/40 bg-resuem-success-dim text-resuem-success',
+  MID: 'border-resuem-warning/40 bg-resuem-warning-dim text-resuem-warning',
+  BAD: 'border-resuem-error/40 bg-resuem-error-dim text-resuem-error',
 };
 
 function formatBulletList(entries) {
@@ -47,7 +48,7 @@ function collectBullets(tailoredSections, sectionKey) {
 
 const SECTION_ORDER = ['experience', 'projects', 'summary'];
 
-export default function OutputTabs({ result }) {
+export default function OutputTabs({ result, isPro = false, onRequestPaywall }) {
   const [activeView, setActiveView] = useState('diff');
 
   if (!result?.tailored_sections) return null;
@@ -83,174 +84,202 @@ export default function OutputTabs({ result }) {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-xl">
+      <AtsScore result={result} />
+
       {(warnings?.length > 0 || overall_explanation) && (
-        <div className="space-y-3">
+        <div className="space-y-md">
           {warnings?.map((w, i) => (
             <p
               key={i}
-              className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+              className="border border-resuem-warning/30 bg-resuem-warning-dim px-lg py-md text-sm text-resuem-warning"
             >
               {w}
             </p>
           ))}
           {overall_explanation && (
-            <p className="rounded-lg border border-polished-200 bg-polished-50 px-4 py-3 text-sm text-polished-700">
+            <p className="border-l-2 border-resuem-accent bg-resuem-surface px-lg py-md text-sm leading-relaxed text-resuem-text-secondary">
               {overall_explanation}
             </p>
           )}
           {jd_keywords_used?.length > 0 && (
-            <p className="text-xs text-polished-500">
-              Keywords used: {jd_keywords_used.join(', ')}
+            <p className="text-xs text-resuem-muted">
+              <span className="label-editorial mr-sm">Keywords</span>
+              {jd_keywords_used.join(', ')}
             </p>
           )}
         </div>
       )}
 
-      <div className="rounded-xl border border-polished-200 bg-white shadow-sm">
-        <div className="flex border-b border-polished-200">
+      <div className="surface-panel overflow-hidden">
+        <div
+          className="flex overflow-x-auto border-b border-resuem-border"
+          role="tablist"
+        >
           {VIEW_TABS.map(({ id, label }) => (
             <button
               key={id}
               type="button"
+              role="tab"
+              aria-selected={activeView === id}
+              data-active={activeView === id}
               onClick={() => setActiveView(id)}
-              className={`px-4 py-3 text-sm font-medium transition-colors ${
-                activeView === id
-                  ? 'border-b-2 border-polished-900 text-polished-900'
-                  : 'text-polished-500 hover:text-polished-700'
-              }`}
+              className="tab-trigger shrink-0"
             >
               {label}
             </button>
           ))}
         </div>
 
-        <div className="p-6">
-          {activeView === 'diff' && (
-            <div className="space-y-8">
-              {diffSections.map((sectionKey) => {
-                if (sectionKey === 'summary') {
-                  const { original, tailored } = tailored_sections.summary;
-                  return (
-                    <div key="summary">
-                      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-polished-500">
-                        Summary
-                      </h3>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div className="rounded-lg border border-polished-200 bg-polished-50 p-4">
-                          <p className="mb-2 text-xs font-medium text-polished-400">Before</p>
-                          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-polished-700">
-                            {original || '—'}
-                          </pre>
-                        </div>
-                        <div className="rounded-lg border border-polished-700 bg-polished-950 p-4">
-                          <p className="mb-2 text-xs font-medium text-polished-300">After</p>
-                          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-polished-100">
-                            {tailored || '—'}
-                          </pre>
+        <div className="p-lg sm:p-xl" role="tabpanel">
+          <div key={activeView} className="tab-panel-enter">
+            {activeView === 'diff' && (
+              <div className="space-y-2xl">
+                {diffSections.map((sectionKey) => {
+                  if (sectionKey === 'summary') {
+                    const { original, tailored } = tailored_sections.summary;
+                    return (
+                      <div key="summary">
+                        <h3 className="label-editorial mb-lg">Summary</h3>
+                        <div className="grid gap-md md:grid-cols-2">
+                          <div className="border border-resuem-border bg-resuem-before p-lg">
+                            <p className="label-editorial mb-md text-resuem-muted">Before</p>
+                            <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-resuem-text-secondary">
+                              {original || '—'}
+                            </pre>
+                          </div>
+                          <div className="border border-resuem-accent/30 bg-resuem-after p-lg">
+                            <p className="label-editorial mb-md text-resuem-accent">After</p>
+                            <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-resuem-text">
+                              {tailored || '—'}
+                            </pre>
+                          </div>
                         </div>
                       </div>
+                    );
+                  }
+
+                  const entries = tailored_sections[sectionKey] ?? [];
+                  return (
+                    <div key={sectionKey}>
+                      <h3 className="label-editorial mb-lg">
+                        {sectionKey === 'experience' ? 'Experience' : 'Projects'}
+                      </h3>
+                      {entries.map((entry, ei) => (
+                        <div key={ei} className="mb-xl last:mb-0">
+                          {(entry.company || entry.role) && (
+                            <p className="mb-lg font-display text-lg text-resuem-text">
+                              {[entry.company, entry.role].filter(Boolean).join(' — ')}
+                            </p>
+                          )}
+                          <div className="space-y-lg">
+                            {(entry.bullets ?? []).map((bullet, bi) => (
+                              <div key={bi} className="grid gap-md md:grid-cols-2">
+                                <div className="border border-resuem-border bg-resuem-before p-lg">
+                                  <p className="label-editorial mb-md text-resuem-muted">Before</p>
+                                  <p className="text-sm leading-relaxed text-resuem-text-secondary">
+                                    {bullet.original}
+                                  </p>
+                                </div>
+                                <div className="border border-resuem-accent/30 bg-resuem-after p-lg">
+                                  <p className="label-editorial mb-md text-resuem-accent">After</p>
+                                  <p className="text-sm leading-relaxed text-resuem-text">
+                                    {bullet.tailored}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   );
-                }
+                })}
+              </div>
+            )}
 
-                const entries = tailored_sections[sectionKey] ?? [];
-                return (
-                  <div key={sectionKey}>
-                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-polished-500">
-                      {sectionKey === 'experience' ? 'Experience' : 'Projects'}
-                    </h3>
-                    {entries.map((entry, ei) => (
-                      <div key={ei} className="mb-6">
-                        {(entry.company || entry.role) && (
-                          <p className="mb-3 text-sm font-medium text-polished-800">
-                            {[entry.company, entry.role].filter(Boolean).join(' — ')}
-                          </p>
-                        )}
-                        <div className="space-y-4">
-                          {(entry.bullets ?? []).map((bullet, bi) => (
-                            <div key={bi} className="grid gap-4 md:grid-cols-2">
-                              <div className="rounded-lg border border-polished-200 bg-polished-50 p-4">
-                                <p className="mb-2 text-xs font-medium text-polished-400">Before</p>
-                                <p className="text-sm leading-relaxed text-polished-700">
-                                  {bullet.original}
-                                </p>
-                              </div>
-                              <div className="rounded-lg border border-polished-700 bg-polished-950 p-4">
-                                <p className="mb-2 text-xs font-medium text-polished-300">After</p>
-                                <p className="text-sm leading-relaxed text-polished-100">
-                                  {bullet.tailored}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {activeView === 'copy' && (
-            <div>
-              <button
-                type="button"
-                onClick={() => navigator.clipboard.writeText(cleanCopy)}
-                className="mb-4 rounded-lg border border-polished-200 px-3 py-1.5 text-xs font-medium text-polished-700 hover:bg-polished-50"
-              >
-                Copy all
-              </button>
-              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-polished-800">
-                {cleanCopy}
-              </pre>
-            </div>
-          )}
-
-          {activeView === 'changes' && (
-            <ul className="space-y-4">
-              {allChanges.length === 0 ? (
-                <p className="text-sm text-polished-500">No change notes returned.</p>
-              ) : (
-                allChanges.map((change, i) => (
-                  <li
-                    key={i}
-                    className="rounded-lg border border-polished-200 p-4 text-sm"
+            {activeView === 'copy' && (
+              <div>
+                <div className="mb-lg flex flex-wrap gap-sm">
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText(cleanCopy)}
+                    className="btn-secondary"
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      {change.context && (
-                        <span className="text-xs font-medium uppercase tracking-wider text-polished-400">
-                          {change.context}
-                        </span>
-                      )}
-                      {change.classification && (
-                        <span
-                          className={`rounded px-1.5 py-0.5 text-xs font-medium ${
-                            CLASSIFICATION_STYLES[change.classification] ??
-                            'bg-polished-100 text-polished-700'
-                          }`}
-                        >
-                          {change.classification}
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-2 grid gap-2 text-polished-600 md:grid-cols-2">
-                      <p>
-                        <span className="font-medium text-polished-500">Was: </span>
-                        {change.original}
+                    Copy all
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isPro) {
+                        onRequestPaywall?.();
+                        return;
+                      }
+                      const blob = new Blob([cleanCopy], { type: 'text/plain' });
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = 'tailored-resume.txt';
+                      document.body.appendChild(link);
+                      link.click();
+                      link.remove();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="btn-secondary"
+                  >
+                    Download PDF
+                  </button>
+                </div>
+                <pre className="whitespace-pre-wrap border border-resuem-border bg-resuem-bg-subtle p-lg font-mono text-[0.8125rem] leading-relaxed text-resuem-text-secondary">
+                  {cleanCopy}
+                </pre>
+              </div>
+            )}
+
+            {activeView === 'changes' && (
+              <ul className="space-y-lg">
+                {allChanges.length === 0 ? (
+                  <p className="text-sm text-resuem-muted">No change notes returned.</p>
+                ) : (
+                  allChanges.map((change, i) => (
+                    <li
+                      key={i}
+                      className="border border-resuem-border bg-resuem-surface p-lg text-sm"
+                    >
+                      <div className="flex flex-wrap items-center gap-sm">
+                        {change.context && (
+                          <span className="label-editorial">{change.context}</span>
+                        )}
+                        {change.classification && (
+                          <span
+                            className={`border px-sm py-xs text-xs font-medium uppercase tracking-wider ${
+                              CLASSIFICATION_STYLES[change.classification] ??
+                              'border-resuem-border bg-resuem-accent-dim text-resuem-text-secondary'
+                            }`}
+                          >
+                            {change.classification}
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-lg grid gap-md text-resuem-text-secondary md:grid-cols-2">
+                        <p>
+                          <span className="label-editorial mr-sm">Was</span>
+                          {change.original}
+                        </p>
+                        <p>
+                          <span className="label-editorial mr-sm">Now</span>
+                          <span className="text-resuem-text">{change.tailored}</span>
+                        </p>
+                      </div>
+                      <p className="mt-md border-t border-resuem-border pt-md text-resuem-text">
+                        {change.explanation}
                       </p>
-                      <p>
-                        <span className="font-medium text-polished-500">Now: </span>
-                        {change.tailored}
-                      </p>
-                    </div>
-                    <p className="mt-2 text-polished-800">{change.explanation}</p>
-                  </li>
-                ))
-              )}
-            </ul>
-          )}
+                    </li>
+                  ))
+                )}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

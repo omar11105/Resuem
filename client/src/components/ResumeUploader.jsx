@@ -20,15 +20,15 @@ export default function ResumeUploader({
   );
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2">
+    <div className="space-y-md">
+      <div className="inline-flex border border-resuem-border p-xs">
         <button
           type="button"
           onClick={() => onModeChange?.('paste')}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+          className={`px-md py-sm text-xs font-medium uppercase tracking-wider transition-colors duration-fast ${
             mode === 'paste'
-              ? 'bg-polished-900 text-white'
-              : 'bg-polished-100 text-polished-700'
+              ? 'bg-resuem-accent-dim text-resuem-accent-bright'
+              : 'text-resuem-muted hover:text-resuem-text-secondary'
           }`}
         >
           Paste text
@@ -36,10 +36,10 @@ export default function ResumeUploader({
         <button
           type="button"
           onClick={() => onModeChange?.('pdf')}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+          className={`px-md py-sm text-xs font-medium uppercase tracking-wider transition-colors duration-fast ${
             mode === 'pdf'
-              ? 'bg-polished-900 text-white'
-              : 'bg-polished-100 text-polished-700'
+              ? 'bg-resuem-accent-dim text-resuem-accent-bright'
+              : 'text-resuem-muted hover:text-resuem-text-secondary'
           }`}
         >
           Upload PDF
@@ -52,16 +52,18 @@ export default function ResumeUploader({
           onChange={(e) => onPasteChange?.(e.target.value)}
           placeholder="Paste your resume here..."
           rows={10}
-          className="w-full rounded-xl border border-polished-200 bg-white px-4 py-3 text-sm focus:border-polished-500 focus:outline-none focus:ring-1 focus:ring-polished-500"
+          className="input-field min-h-[200px] resize-y font-mono text-[0.8125rem]"
         />
       ) : (
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
-          className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-polished-300 bg-polished-50 px-6 py-10 text-center"
+          className="flex min-h-[200px] flex-col items-center justify-center border border-dashed border-resuem-border-strong bg-resuem-surface px-lg py-2xl text-center transition-colors duration-fast hover:border-resuem-accent hover:bg-resuem-accent-dim"
         >
-          <p className="text-sm text-polished-600">Drop your PDF here (max 5MB)</p>
-          <label className="mt-3 cursor-pointer text-sm font-medium text-polished-900 underline">
+          <p className="text-sm text-resuem-text-secondary">
+            Drop your PDF here (max 5MB)
+          </p>
+          <label className="mt-md cursor-pointer text-xs font-medium uppercase tracking-wider text-resuem-accent hover:text-resuem-accent-bright">
             or browse
             <input
               type="file"
@@ -74,7 +76,7 @@ export default function ResumeUploader({
             />
           </label>
           {file && (
-            <p className="mt-2 text-xs text-polished-500">{file.name}</p>
+            <p className="mt-md font-mono text-xs text-resuem-muted">{file.name}</p>
           )}
         </div>
       )}
