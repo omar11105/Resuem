@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import api from '../lib/api';
-import { openProCheckout } from '../lib/paddle';
+import { openProCheckout } from '../lib/lemonsqueezy';
 
 const POLL_INTERVAL_MS = 3000;
 const MAX_POLLS = 5;
@@ -9,8 +9,9 @@ const MAX_POLLS = 5;
 export default function PaywallModal({ open, onClose, reason, onPlanActivated }) {
   const { user } = useUser();
   const [activating, setActivating] = useState(false);
+  const [checkoutComplete, setCheckoutComplete] = useState(false);
 
-  const pollForPro = useCallback(async () => {
+  const startPolling = useCallback(async () => {
     setActivating(true);
     for (let i = 0; i < MAX_POLLS; i++) {
       if (i > 0) {
@@ -21,6 +22,7 @@ export default function PaywallModal({ open, onClose, reason, onPlanActivated })
         if (data.plan === 'pro') {
           onPlanActivated?.();
           setActivating(false);
+          setCheckoutComplete(false);
           onClose();
           return;
         }
@@ -32,23 +34,28 @@ export default function PaywallModal({ open, onClose, reason, onPlanActivated })
   }, [onPlanActivated, onClose]);
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (!open) {
+      setCheckoutComplete(false);
+      setActivating(false);
+      return undefined;
+    }
 
     const handler = () => {
-      pollForPro();
+      setCheckoutComplete(true);
+      startPolling();
     };
-    window.addEventListener('paddle:checkout:completed', handler);
-    return () => window.removeEventListener('paddle:checkout:completed', handler);
-  }, [open, pollForPro]);
+    window.addEventListener('lemonsqueezy:checkout:success', handler);
+    return () => window.removeEventListener('lemonsqueezy:checkout:success', handler);
+  }, [open, startPolling]);
 
   const handleUpgrade = () => {
     const email = user?.primaryEmailAddress?.emailAddress;
     const userId = user?.id;
     if (!email || !userId) {
-      console.error('Cannot open Paddle checkout without signed-in user');
+      console.error('Cannot open LemonSqueezy checkout without signed-in user');
       return;
     }
-    openProCheckout(email, userId);
+    openProCheckout(userId, email);
   };
 
   if (!open) return null;
@@ -65,8 +72,8 @@ export default function PaywallModal({ open, onClose, reason, onPlanActivated })
           Continue with Pro
         </h2>
         <p className="mt-md text-sm leading-relaxed text-resuem-text-secondary">
-          {activating
-            ? 'Thanks! Your plan is activating — this usually takes a few seconds.'
+          {checkoutComplete || activating
+            ? 'Payment successful! Your Pro plan is activating…'
             : reason === 'download'
               ? 'PDF download is available on Pro.'
               : "You've used your free tailoring for today. Upgrade for unlimited runs and PDF export."}
@@ -80,14 +87,16 @@ export default function PaywallModal({ open, onClose, reason, onPlanActivated })
           >
             Maybe later
           </button>
-          <button
-            type="button"
-            onClick={handleUpgrade}
-            disabled={activating}
-            className="btn-primary flex-1 disabled:opacity-50"
-          >
-            {activating ? 'Activating…' : 'Upgrade to Pro — $9/month'}
-          </button>
+          {!checkoutComplete && (
+            <button
+              type="button"
+              onClick={handleUpgrade}
+              disabled={activating}
+              className="btn-primary flex-1 disabled:opacity-50"
+            >
+              Upgrade to Pro — $9/month
+            </button>
+          )}
         </div>
       </div>
     </div>

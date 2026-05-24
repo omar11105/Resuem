@@ -22,7 +22,7 @@ export default function Refund() {
           within 5 business days.
         </p>
         <p>
-          Payments are processed by Paddle.com. Refunds will be returned to the original payment
+          Payments are processed by Lemon Squeezy (lemonsqueezy.com). Refunds will be returned to the original payment
           method.
         </p>
       </div>

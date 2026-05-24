@@ -28,7 +28,7 @@ export default function Privacy() {
             metadata needed to enforce plan limits and show your history.
           </li>
           <li>
-            <strong>Payment data:</strong> subscriptions are processed by Paddle. We do not store
+            <strong>Payment data:</strong> subscriptions are processed by Lemon Squeezy. We do not store
             credit card numbers or full payment instrument details on our servers.
           </li>
         </ul>
@@ -66,14 +66,14 @@ export default function Privacy() {
             </a>
           </li>
           <li>
-            <strong>Paddle</strong> (payments) —{' '}
+            <strong>Lemon Squeezy</strong> (payments) —{' '}
             <a
-              href="https://www.paddle.com/legal/privacy"
+              href="https://www.lemonsqueezy.com/privacy"
               className="legal-link"
               target="_blank"
               rel="noopener noreferrer"
             >
-              paddle.com/legal/privacy
+              lemonsqueezy.com/privacy
             </a>
           </li>
           <li>

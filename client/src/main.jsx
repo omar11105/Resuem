@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthTokenSync from './components/AuthTokenSync';
-import PaddleInit from './components/PaddleInit';
+import { initLemonSqueezy } from './lib/lemonsqueezy';
 import ProtectedRoute from './components/ProtectedRoute';
 import SiteLayout from './components/SiteLayout';
 import Home from './pages/Home';
@@ -22,11 +22,18 @@ if (!clerkPubKey) {
   console.warn('Missing VITE_CLERK_PUBLISHABLE_KEY in client/.env');
 }
 
+function LemonSqueezyInit() {
+  useEffect(() => {
+    initLemonSqueezy();
+  }, []);
+  return null;
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={clerkPubKey}>
       <AuthTokenSync />
-      <PaddleInit />
+      <LemonSqueezyInit />
       <BrowserRouter>
         <Routes>
           <Route element={<SiteLayout />}>

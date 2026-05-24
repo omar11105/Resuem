@@ -60,9 +60,10 @@ export default function Terms() {
           <Link to="/pricing">pricing page</Link>.
         </p>
         <p>
-          Payments are processed by Paddle.com, our Merchant of Record. Paddle handles all
-          billing, invoicing, and tax compliance. When you purchase a Pro subscription, you
-          are purchasing from Paddle, not directly from Omar Mohamed. Subscription fees renew
+          Payments are processed by Lemon Squeezy (lemonsqueezy.com), our Merchant of Record.
+          Lemon Squeezy handles all billing, invoicing, and tax compliance. When you purchase
+          a Pro subscription, you are purchasing from Lemon Squeezy, not directly from Omar Mohamed.
+          Subscription fees renew
           automatically each billing period until you cancel. You may cancel at any time through
           your account or by contacting us; cancellation takes effect at the end of the current
           billing period unless otherwise required by law.
@@ -138,7 +139,7 @@ export default function Terms() {
           be liable for any indirect, incidental, special, consequential, or punitive damages,
           or for lost profits or data, arising from your use of Resuem. Our total liability for
           any claim relating to the service is limited to the amount you paid to us (or through
-          Paddle on our behalf) in the three months preceding the event giving rise to the claim.
+          Lemon Squeezy on our behalf) in the three months preceding the event giving rise to the claim.
         </p>
       </section>
 

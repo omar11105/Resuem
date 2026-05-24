@@ -1,17 +1,17 @@
 # Project: Resume Tailor
 Stack: React + Tailwind (client/), Node.js/Express (server/)
 Auth: Clerk (@clerk/clerk-react client, @clerk/clerk-sdk-node server middleware)
-Payments: Paddle Billing (client Paddle.js CDN + server webhooks at POST /webhooks/paddle)
+Payments: LemonSqueezy (hosted checkout + webhooks at POST /webhooks/lemonsqueezy)
 DB: PostgreSQL via pg library
 AI: Anthropic SDK, model claude-sonnet-4-6 (override via ANTHROPIC_MODEL)
 
 Rules:
 - Never hardcode API keys or secrets. Use process.env.* always.
 - All user input must be sanitized before DB insertion. Use parameterized queries ($1, $2 syntax).
-- Paddle webhook route uses express.json() — verify with paddle.webhooks.unmarshal
+- LemonSqueezy webhook route uses express.raw() and must be registered BEFORE express.json()
 - Always validate file uploads: check mimetype, enforce 5MB limit via multer
 - Rate limit middleware runs before business logic on tailor route
 - Never expose internal error messages to the client. Log internally, return generic message.
 - Use async/await, not .then() chains
 - Every DB query uses parameterized statements. No string concatenation in SQL.
-- Never expose PADDLE_API_KEY to the frontend
+- Never expose LEMONSQUEEZY_API_KEY to the frontend

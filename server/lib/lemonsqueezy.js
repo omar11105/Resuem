@@ -1,0 +1,1 @@
+export const LEMONSQUEEZY_API_KEY = process.env.LEMONSQUEEZY_API_KEY;
