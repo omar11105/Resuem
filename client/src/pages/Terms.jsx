@@ -145,7 +145,7 @@ export default function Terms() {
 
       <section>
         <h2>10. Governing Law</h2>
-        <p>These terms are governed by the laws of Kuwait.</p>
+        <p>These terms are governed by the laws of Egypt.</p>
       </section>
 
       <section>
